@@ -5,11 +5,11 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        node: [ '18']
-    name: Node ${{ matrix.node }}
+    runs-on: evershop
+    #strategy:
+      #matrix:
+       # node: [ '18']
+   # name: Node ${{ matrix.node }}
 
     # env:
     #   php-ini-values: post_max_size=256M
