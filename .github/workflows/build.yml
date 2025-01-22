@@ -1,39 +1,54 @@
-name: Build
+name: build
 
 on:
-    workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: evershop
-    #strategy:
-      #matrix:
-       # node: [ '18']
-   # name: Node ${{ matrix.node }}
-
-    # env:
-    #   php-ini-values: post_max_size=256M
-    #   wp-bp-directory: src/wp-content/plugins/buddypress
-    #   DB_DATABASE: db_test
-    #   DB_USER: root
-    #   DB_PASSWORD: 'root'
-    #   DB_HOST: localhost
+    runs-on: self-hosted
 
     steps:
-      # - run: |
-      #     sudo /etc/init.d/mysql start
-      #     mysql -e 'CREATE DATABASE db_test;' -uroot -proot
-      #     mysql -e 'SHOW DATABASES;' -uroot -proot
-      - uses: actions/checkout@v2
-      - name: Setup node js
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node }}
-      - run: npm install -g npm@9
-      - run: npm install
-     # - run: npm run setup
-      
-      - run: npm run build
-     # - run: npm run dev
-     # - run: npm run start
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
+      #- name: Set up Node.js
+       # uses: actions/setup-node@v4
+      #  with:
+       #  node-version: '18.x'
+
+      #- name: Install npm
+     #   run: npm install -g npm@9
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Update .env file
+        run: |
+          $envFile = ".env"
+          if (!(Test-Path $envFile)) {
+            Write-Host ".env file does not exist. Creating a new one."
+            New-Item -Path $envFile -ItemType File -Force
+          }
+          Write-Host "Updating .env file with new values."
+          $envContent = Get-Content -Path $envFile -Raw
+          $updates = @{
+            "DB_HOST"     = "${{ secrets.DB_HOST }}"
+            "DB_PORT" = "${{ secrets.DB_PORT }}"
+            "DB_NAME" = "${{ secrets.DB_NAME }}"
+            "DB_USER"     = "${{ secrets.DB_USER }}"
+            "DB_PASSWORD"     = "${{ secrets.DB_PASSWORD }}"
+            "DB_SSLMODE"     = "${{ secrets.DB_SSLMODE }}"
+          }
+          foreach ($key in $updates.Keys) {
+            if ($envContent -match "^$key=.*$") {
+              $envContent = $envContent -replace "^$key=.*$", "$key=$($updates[$key])"
+            } else {
+              $envContent += "`n$key=$($updates[$key])"
+            }
+          }
+          Set-Content -Path $envFile -Value $envContent
+        shell: powershell
+
+        
+      - name: Install dependencies
+        run: npm run build
