@@ -1,10 +1,11 @@
-name: Github build
+name: Build
 
-on: [pull_request]
+on:
+    workflow_dispatch: 
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     strategy:
       matrix:
         node: [ '18']
@@ -30,4 +31,8 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: npm install -g npm@9
       - run: npm install
-      - run: npm run test
+      - run: npm run setup
+      - run: npm run dev
+      - run: npm run build
+      - run: npm run start
+
