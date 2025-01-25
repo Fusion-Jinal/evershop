@@ -39,8 +39,8 @@ jobs:
       run: pwd
     - name: Create a ZIP archive of the repository
       run: |
-        zip -r ${{ env.ApplicationFile }} . -x ".git/*" ".github/*" > $null 2>&1
- 
+       $CURRENT_DIR = Get-Location
+       7z a -tzip ${{ env.ApplicationFile }} "$CURRENT_DIR\*" 
     - name: project dir path
       run: |
         echo "FusionLiteProject: ${{ env.FusionLiteProject }}"
